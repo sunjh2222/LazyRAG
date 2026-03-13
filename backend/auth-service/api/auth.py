@@ -34,9 +34,11 @@ from schemas.auth import (
     RegisterBody,
     RegisterResponse,
     SuccessResponse,
+    UpdateMeBody,
     ValidateResponse,
 )
 from services.auth_service import auth_service
+from services.user_service import user_service
 
 
 router = APIRouter(prefix='/auth', tags=['auth'])
@@ -222,6 +224,19 @@ def me(user: User = Depends(current_user)):
         'permissions': list(get_effective_permission_codes(user)),
         'tenant_id': user.tenant_id,
     }
+
+
+@router.patch('/me', response_model=SuccessResponse)
+def update_me(body: UpdateMeBody, user: User = Depends(current_user)):
+    """用户修改自己的信息，除用户名外均可修改（display_name、email、phone、remark）。"""
+    user_service.update_self(
+        user.id,
+        display_name=body.display_name,
+        email=body.email,
+        phone=body.phone,
+        remark=body.remark,
+    )
+    return {'success': True}
 
 
 @router.post('/change_password', response_model=SuccessResponse)

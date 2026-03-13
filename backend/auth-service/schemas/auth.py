@@ -55,7 +55,15 @@ class ValidateResponse(BaseModel):
     permissions: list[str]
 
 
-# ----- 当前用户 -----
+# ----- 当前用户 / 修改自己的信息 -----
+class UpdateMeBody(BaseModel):
+    """用户修改自己的信息（除用户名外均可选更新）"""
+    display_name: str | None = None
+    email: str | None = None
+    phone: str | None = None
+    remark: str | None = None
+
+
 class MeResponse(BaseModel):
     """当前用户信息"""
     user_id: str

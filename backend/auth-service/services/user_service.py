@@ -90,6 +90,28 @@ class UserService:
             ]
             return items, int(total)
 
+    def update_self(
+        self,
+        user_id: uuid.UUID,
+        *,
+        display_name: str | None = None,
+        email: str | None = None,
+        phone: str | None = None,
+        remark: str | None = None,
+    ) -> None:
+        """用户修改自己的信息（除用户名外），仅更新传入的字段。"""
+        with SessionLocal() as db:
+            user = UserRepository.update_self(
+                db,
+                user_id,
+                display_name=display_name,
+                email=email,
+                phone=phone,
+                remark=remark,
+            )
+            if not user:
+                raise_error(ErrorCodes.USER_NOT_FOUND)
+
     def get_user(self, user_id: uuid.UUID) -> dict:
         """Get user detail by id."""
         with SessionLocal() as db:

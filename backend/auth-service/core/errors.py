@@ -73,11 +73,9 @@ def raise_error(err: ErrorTuple, extra_msg: str | None = None, *, exc_cls: Type[
 
 
 def error_payload_from_exception(exc: AppException) -> dict[str, Any]:
-    """格式化payload"""
-
+    """格式化 payload：外层返回 message，data 中不重复返回 message，避免信息冗余。"""
     data: Optional[dict[str, Any]] = {
         "code": exc.code,
-        "message": exc.message,
         "ex_mesage": exc.extra or "",
     }
     return {"code": exc.http_code, "message": exc.message, "data": data}

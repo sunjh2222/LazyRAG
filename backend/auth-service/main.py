@@ -19,6 +19,8 @@ from api.user import router as user_router
 from core.errors import AppException, error_payload_from_exception
 
 
+_API_PREFIX = "/api/authservice"
+
 # 确保日志可见（uvicorn 的 log_config 可能把默认级别设为 WARNING/且禁用既有 logger）
 logging.basicConfig(level=logging.INFO, format="%(message)s", force=True)
 
@@ -26,13 +28,13 @@ app = FastAPI(
     title='Auth Service',
     description='LazyRAG 认证与授权服务（登录、注册、Token、用户/角色/组管理）',
     version='1.0.0',
-    docs_url='/docs',
+    docs_url=f'{_API_PREFIX}/docs',
     redoc_url=None,
     oauth2_redirect_url=None,
-    openapi_url='/openapi.json',
+    openapi_url=f'{_API_PREFIX}/openapi.json',
 )
 
-_SWAGGER_PATHS = {'/openapi.json', '/openapi.yaml', '/docs'}
+_SWAGGER_PATHS = {f'{_API_PREFIX}/openapi.json', f'{_API_PREFIX}/openapi.yaml', f'{_API_PREFIX}/docs'}
 
 _logger = logging.getLogger('uvicorn.error')
 _logger.setLevel(logging.INFO)
@@ -194,15 +196,12 @@ def _handle_validation_error(_, exc: RequestValidationError):
     return JSONResponse(status_code=400, content={"code": 400, "message": "参数错误", "data": exc.errors()})
 
 
-@app.get('/openapi.yaml', include_in_schema=False)
+@app.get(f'{_API_PREFIX}/openapi.yaml', include_in_schema=False)
 def openapi_yaml():
     """openapi.yaml文档"""
     schema = app.openapi()
     body = yaml.dump(schema, allow_unicode=True, sort_keys=False)
     return Response(content=body, media_type='application/x-yaml')
-
-
-_API_PREFIX = "/api/authservice"
 
 app.include_router(auth_router, prefix=_API_PREFIX)
 app.include_router(authorization_router, prefix=_API_PREFIX)
